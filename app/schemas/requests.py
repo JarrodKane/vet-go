@@ -17,3 +17,12 @@ class UserUpdatePasswordRequest(BaseRequest):
 class UserCreateRequest(BaseRequest):
     email: EmailStr
     password: str
+
+
+# ------------------
+# Animals
+# ------------------
+
+class AnimalCreateRequest(BaseRequest):
+    name : str
+    type: str

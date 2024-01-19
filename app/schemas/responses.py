@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
@@ -18,3 +19,8 @@ class AccessTokenResponse(BaseResponse):
 class UserResponse(BaseResponse):
     id: str
     email: EmailStr
+
+class AnimalResponse(BaseResponse):
+    id: str 
+    name: str
+    # owners: List[UserResponse.id]
