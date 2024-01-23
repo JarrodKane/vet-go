@@ -28,6 +28,8 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+def get_test_database_uri():
+    return app_config.settings.TEST_SQLALCHEMY_DATABASE_URI
 
 def get_database_uri():
     return app_config.settings.DEFAULT_SQLALCHEMY_DATABASE_URI
@@ -68,7 +70,7 @@ def do_run_migrations(connection):
         context.run_migrations()
 
 
-async def run_migrations_online():
+async def run_migrations_online(database_uri):
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
@@ -77,7 +79,7 @@ async def run_migrations_online():
     """
     configuration = config.get_section(config.config_ini_section)
     assert configuration
-    configuration["sqlalchemy.url"] = get_database_uri()
+    configuration["sqlalchemy.url"] = database_uri
     connectable = AsyncEngine(
         engine_from_config(
             configuration,
@@ -89,8 +91,8 @@ async def run_migrations_online():
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
 
-
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    asyncio.run(run_migrations_online(get_database_uri()))
+    asyncio.run(run_migrations_online(get_test_database_uri()))
