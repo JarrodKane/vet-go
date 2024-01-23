@@ -15,43 +15,55 @@ alembic upgrade head
 """
 import uuid
 
+import enum
 from sqlalchemy import String, ForeignKey, Boolean, Table, Column, Enum, Date, Float, DateTime, Text, Time, Integer,Interval, Numeric
 from decimal import Decimal
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from enum import Enum as PyEnum
+# from enum import Enum as PyEnum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
+# NEED THIS IN ORDER TO CREATE ENUMS WITHOUT ISSUE
+# https://github.com/sqlalchemy/alembic/issues/278#issuecomment-1671727631
+import alembic_postgresql_enum
 
 
 
-ActivityTypes = Enum('check-up', 'operation', 'sale', 'vaccination', 'dental', 'grooming', 'emergency', 'consultation', 'imaging', 'other', 'phone', 'Bath', 'Feces', 'Injury', 'Exercise', 'Food', 'Nails', 'Wash', 'Urine', 'Vomit', 'Deworming', 'Water', 'Sleep', 'Seizure', 'Season', 'Medication', name='activity_types')
 
-class SpecialisationType(PyEnum):
-    Canine_Medicine = "Canine Medicine"
-    Feline_Medicine = "Feline Medicine"
-    Equine_Medicine = "Equine Medicine"
-    Avian_Medicine = "Avian Medicine"
-    Exotic_Animal_Medicine = "Exotic Animal Medicine"
-    Dental_Specialist = "Dental Specialist"
-    Orthopedic_Surgeon = "Orthopedic Surgeon"
-    Ophthalmologist = "Ophthalmologist"
-    Dermatologist = "Dermatologist"
-    Behavioral_Specialist = "Behavioral Specialist"
-    Radiology = "Radiology"
-    Nutritionist = "Nutritionist"
-    Emergency_and_Critical_Care = "Emergency and Critical Care"
-    Internal_Medicine = "Internal Medicine"
-    Surgery = "Surgery"
-    Anesthesiology = "Anesthesiology"
-    Pathology = "Pathology"
-    Rehabilitation_Therapist = "Rehabilitation Therapist"
-    Public_Health = "Public Health"
-    Zoological_Medicine = "Zoological Medicine"
-    Other = "Other"
 
-class AnimalType(PyEnum):
+
+class ActivityTypes(enum.Enum):
+    check_up = "check-up"
+    operation = "operation"
+    sale = "sale"
+    vaccination = "vaccination"
+    dental = "dental"
+    grooming = "grooming"
+    emergency = "emergency"
+    consultation = "consultation"
+    imaging = "imaging"
+    other = "other"
+    phone = "phone"
+    Bath = "Bath"
+    Feces = "Feces"
+    Injury = "Injury"
+    Exercise = "Exercise"
+    Food = "Food"
+    Nails = "Nails"
+    Wash = "Wash"
+    Urine = "Urine"
+    Vomit = "Vomit"
+    Deworming = "Deworming"
+    Water = "Water"
+    Sleep = "Sleep"
+    Seizure = "Seizure"
+    Season = "Season"
+    Medication = "Medication"
+
+
+
+class AnimalType(enum.Enum):
     Dog = "Dog"
     Cat = "Cat"
     Horse = "Horse"
@@ -69,7 +81,7 @@ class AnimalType(PyEnum):
     Other = "Other"
 
 
-class SpecialisationType(PyEnum):
+class SpecialisationType(enum.Enum):
     Canine_Medicine = "Canine Medicine"
     Feline_Medicine = "Feline Medicine"
     Equine_Medicine = "Equine Medicine"
@@ -92,7 +104,7 @@ class SpecialisationType(PyEnum):
     Zoological_Medicine = "Zoological Medicine"
     Other = "Other"
 
-class RoleType(PyEnum):
+class RoleType(enum.Enum):
     Veterinarian = "Veterinarian"
     Veterinary_Technician = "Veterinary Technician"
     Receptionist = "Receptionist"
@@ -186,7 +198,7 @@ class Animal(AddressModel):
     name: Mapped[str] = mapped_column(String(254), nullable=True)
     sex: Mapped[str] = mapped_column(String(50), nullable=True)
     height: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=True)  # Adjust Numeric precision and scale
-    animal_types = mapped_column(Enum(*[e.value for e in AnimalType]), nullable=False)
+    animal_types = mapped_column(Enum(AnimalType), nullable=False)
     color: Mapped[str] = mapped_column(String(128), nullable=True)
     description: Mapped[str] = mapped_column(String(128), nullable=True)
     image: Mapped[str] = mapped_column(String(128), nullable=True)
@@ -217,7 +229,7 @@ class AnimalLog(BaseModel):
     animal_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('animal.id'), nullable=False)
     appointment_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('appointment.id'), nullable=True)
     date: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
-    activity: Mapped[str] = mapped_column(ActivityTypes, nullable=False)
+    activity: Mapped[str] = mapped_column(Enum(ActivityTypes), nullable=False)
     comments: Mapped[str] = mapped_column(Text, nullable=True)
     procedures: Mapped[str] = mapped_column(Text, nullable=True)
     medication: Mapped[str] = mapped_column(Text, nullable=True)
@@ -245,8 +257,8 @@ class Clinic(AddressModel):
     email = mapped_column(String(250), nullable=False)
     description = mapped_column(Text, nullable=True)
     website = mapped_column(String(250), nullable=True)
-    specialisation = mapped_column(Enum(SpecialisationType), nullable=True)
-    animal_types = mapped_column(Enum(*[e.value for e in AnimalType]), nullable=False)
+    specialisation = mapped_column(Enum(SpecialisationType, create_type=False), nullable=True)
+    animal_types = mapped_column(Enum(AnimalType, create_type=False), nullable=False)
     organization_id = mapped_column(UUID(as_uuid=False), ForeignKey('organization.id'), nullable=False)
 
 class Organization(AddressModel):
@@ -272,15 +284,14 @@ class Staff(UserModel):
     __tablename__ = "staff"
 
     description = mapped_column(Text, nullable=True)
-    specialisation = mapped_column(Enum(SpecialisationType), nullable=True)
-
+    specialisation = mapped_column(Enum(SpecialisationType, create_type=False), nullable=True)
 
 class StaffClinic(BaseModel):
     __tablename__ = "staff_clinic"
 
     staff_id = mapped_column(UUID(as_uuid=False), ForeignKey('staff.id'), nullable=False)
     clinic_id = mapped_column(UUID(as_uuid=False), ForeignKey('clinic.id'), nullable=False)
-    role = mapped_column(Enum(RoleType), nullable=False)
+    role = mapped_column(Enum(RoleType, create_type=False), nullable=False)
 
 
 

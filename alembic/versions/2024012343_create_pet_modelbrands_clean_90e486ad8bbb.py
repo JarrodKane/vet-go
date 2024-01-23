@@ -1,8 +1,8 @@
-"""create_pet_model22
+"""create_pet_modelbrands-clean
 
-Revision ID: 01afa1f280c9
-Revises: f88679e5001b
-Create Date: 2024-01-19 16:47:43.156513
+Revision ID: 90e486ad8bbb
+Revises: 84caa38f4010
+Create Date: 2024-01-23 18:43:17.138267
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "01afa1f280c9"
-down_revision = "f88679e5001b"
+revision = "90e486ad8bbb"
+down_revision = "84caa38f4010"
 branch_labels = None
 depends_on = None
 
