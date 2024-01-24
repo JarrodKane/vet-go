@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 from app.models import AnimalType   
 
 
@@ -57,3 +57,8 @@ class AnimalUpdateRequest(BaseModel):
     image: Optional[str]
     date_of_death: Optional[date]
     active: Optional[bool]
+
+class AnimalWeightHistoryCreateRequest(BaseModel):
+    weight: float
+    change_date: datetime
+    animal_id: str
