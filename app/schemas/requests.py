@@ -1,5 +1,10 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import date
+from app.models import AnimalType   
+
+
+
 
 
 class BaseRequest(BaseModel):
@@ -35,6 +40,20 @@ class UserUpdateRequest(BaseModel):
 # Animals
 # ------------------
 
-class AnimalCreateRequest(BaseRequest):
-    name : str
-    type: str
+class AnimalCreateRequest(BaseModel):
+    name: str
+    animal_types: AnimalType
+    date_of_birth: date
+    active: bool = True
+
+class AnimalUpdateRequest(BaseModel):
+    identifier: Optional[str]
+    name: Optional[str]
+    sex: Optional[str]
+    height: Optional[float]
+    animal_types: Optional[AnimalType]
+    color: Optional[str]
+    description: Optional[str]
+    image: Optional[str]
+    date_of_death: Optional[date]
+    active: Optional[bool]

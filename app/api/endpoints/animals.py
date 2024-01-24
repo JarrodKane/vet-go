@@ -7,6 +7,9 @@ from app.models import Animal, User
 from app.schemas.requests import AnimalCreateRequest
 from app.schemas.responses import AnimalResponse
 
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import subqueryload
+
 
 router = APIRouter()
 
@@ -19,12 +22,19 @@ async def create_new_animal(
 ):
     """Creates new animal. Only for logged users."""
 
-    animal = Animal(name=new_animal.name, type=new_animal.type)
+    animal = Animal(
+        name=new_animal.name,
+        animal_types=new_animal.animal_types,
+        date_of_birth=new_animal.date_of_birth,
+        active=new_animal.active,
+    )
     animal.owners.append(current_user)
     
     session.add(animal)
     await session.commit()
     return animal
+
+
 
 
 @router.get("/all", response_model=list[AnimalResponse], status_code=200)
@@ -34,6 +44,8 @@ async def get_all_animals(
 ):
     """Returns all animals. Only for logged users."""
 
-    result = await session.execute(select(Animal).where(Animal.owners.any(id=current_user.id)))
+    result = await session.execute(
+        select(Animal).options(subqueryload(Animal.owners)).where(Animal.owners.any(id=current_user.id))
+    )
     animals = result.scalars().all()
     return animals

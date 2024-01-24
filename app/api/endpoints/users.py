@@ -8,6 +8,9 @@ from app.models import User
 from app.schemas.requests import UserCreateRequest, UserUpdatePasswordRequest, UserUpdateRequest
 from app.schemas.responses import UserResponse
 from app.utils.services import update_record
+from sqlalchemy.orm import joinedload
+from app.models import AnimalUserAssociation 
+
 
 
 router = APIRouter()
@@ -21,12 +24,36 @@ async def read_current_user(
     return current_user
 
 
+# @router.delete("/me", status_code=204)
+# async def delete_current_user(
+#     current_user: User = Depends(deps.get_current_user),
+#     session: AsyncSession = Depends(deps.get_session),
+# ):
+#     """Delete current user"""
+#     await session.execute(delete(User).where(User.id == current_user.id))
+#     await session.commit()
+
+# TODO: This should be soft deleting first
 @router.delete("/me", status_code=204)
 async def delete_current_user(
     current_user: User = Depends(deps.get_current_user),
     session: AsyncSession = Depends(deps.get_session),
 ):
     """Delete current user"""
+    # Fetch the associations for the current user
+    result = await session.execute(
+        select(AnimalUserAssociation).where(AnimalUserAssociation.user_id == current_user.id)
+    )
+    associations = result.scalars().all()
+
+    # Delete the associations
+    for association in associations:
+        await session.delete(association)
+
+    # Commit the changes to the database
+    await session.commit()
+
+    # Delete the user
     await session.execute(delete(User).where(User.id == current_user.id))
     await session.commit()
 

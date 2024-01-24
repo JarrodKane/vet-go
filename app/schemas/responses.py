@@ -1,5 +1,7 @@
 from typing import List
 from pydantic import BaseModel, ConfigDict, EmailStr
+from app.models import AnimalType  
+from datetime import date
 
 
 class BaseResponse(BaseModel):
@@ -23,4 +25,7 @@ class UserResponse(BaseResponse):
 class AnimalResponse(BaseResponse):
     id: str 
     name: str
-    # owners: List[UserResponse.id]
+    animal_types : AnimalType
+    date_of_birth : date
+    active : bool
+    owners: List[UserResponse] = []
