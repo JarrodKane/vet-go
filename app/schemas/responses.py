@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel, ConfigDict, EmailStr
-from app.models import AnimalType  
+from app.models import AnimalType
 from datetime import date, datetime
 
 from typing import Optional
@@ -50,4 +50,4 @@ class AnimalExtendedResponse(BaseResponse):
 class AnimalWeightHistoryResponse(BaseModel):
     weight: float
     change_date: datetime
-    animal_id: str
+    # animal_id: str

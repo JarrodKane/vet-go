@@ -4,14 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import subqueryload
 
 from app.api import deps
-from app.models import Animal, User
+from app.models import Animal, User, AnimalWeightHistory
 from app.schemas.requests import AnimalCreateRequest, AnimalUpdateRequest, AnimalWeightHistoryCreateRequest
 from app.schemas.responses import AnimalBaseResponse, AnimalExtendedResponse, AnimalWeightHistoryResponse
 from app.utils.services import update_record
 from datetime import datetime
-
-
-
 
 router = APIRouter()
 
@@ -51,7 +48,9 @@ async def get_all_animals(
     animals = result.scalars().all()
     return animals
 
-
+# ------------------
+# Animal by ID update
+# ------------------
 
 @router.patch("/update/{animal_id}", response_model=AnimalExtendedResponse, status_code=200)
 async def update_animal(
@@ -71,7 +70,9 @@ async def update_animal(
     return animal
 
 
-
+# ------------------
+# Weight History
+# ------------------
 
 @router.post('/weight/{animal_id}', response_model=AnimalWeightHistoryResponse, status_code=200)
 async def add_weight(
@@ -88,9 +89,9 @@ async def add_weight(
     animal = result.scalars().first()
 
     weight_history_create.change_date = datetime.now()
-    weight_history = AnimalWeightHistoryCreateRequest(**weight_history_create.model_dump())
-    new_values = {"weight_history": animal.weight_history}
+    weight_history = AnimalWeightHistory(**weight_history_create.model_dump(), animal_id=animal.id)
+    session.add(weight_history)
 
+    await session.commit()
 
-    await update_record(session, animal, new_values)
-    return weight_history
+    return AnimalWeightHistoryResponse(weight=weight_history_create.weight, change_date=weight_history_create.change_date)

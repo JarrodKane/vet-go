@@ -27,7 +27,7 @@ from sqlalchemy.orm import declarative_base
 
 # NEED THIS IN ORDER TO CREATE ENUMS WITHOUT ISSUE
 # https://github.com/sqlalchemy/alembic/issues/278#issuecomment-1671727631
-# import alembic_postgresql_enum
+import alembic_postgresql_enum
 
 
 
@@ -197,6 +197,11 @@ class Animal(AddressModel):
         secondary=AnimalUserAssociation.__tablename__,
         back_populates="animals",
     )
+    weight_history: Mapped[list] = relationship(
+        "AnimalWeightHistory",
+        back_populates="animal",
+        cascade="all, delete-orphan"
+    )
 
 
 
@@ -208,6 +213,10 @@ class AnimalWeightHistory(BaseModel):
     weight: Mapped[float] = mapped_column(Float, nullable=False)
     change_date: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     animal_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('animal.id'), nullable=False)
+    animal: Mapped[Animal] = relationship(
+        "Animal",
+        back_populates="weight_history",
+    )
 
 class AnimalLog(BaseModel):
     __tablename__ = "animal_log"

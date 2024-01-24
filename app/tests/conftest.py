@@ -146,3 +146,4 @@ async def default_animal2(test_db_setup_sessionmaker, default_user: User) -> Ani
             await session.refresh(new_animal)
             return new_animal
         return animal
+

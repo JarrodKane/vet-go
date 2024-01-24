@@ -61,4 +61,7 @@ class AnimalUpdateRequest(BaseModel):
 class AnimalWeightHistoryCreateRequest(BaseModel):
     weight: float
     change_date: datetime
-    animal_id: str
+
+
+
+

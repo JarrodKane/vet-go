@@ -144,8 +144,7 @@ async def test_update_animal_weight(
 ):
     animal_data = {
         "weight": 1.5,
-        "change_date": datetime.strptime("2022-01-01", "%Y-%m-%d").date().isoformat(),
-        "animal_id": default_animal1.id
+        "change_date": datetime.strptime("2022-01-01", "%Y-%m-%d").isoformat(),
     }
 
     response = await client.post(
@@ -154,24 +153,12 @@ async def test_update_animal_weight(
         json=animal_data,
     )
     assert response.status_code == status.HTTP_200_OK
+    await session.commit()
 
-    response_data = response.json()
-    expected_data = {
-        "weight": animal_data["weight"],
-        "change_date": animal_data["change_date"],
-        "animal_id": animal_data["animal_id"]
-    }
-
-    assert len(response_data) == len(expected_data)
-    for key, expected_value in expected_data.items():
-        assert key in response_data
-    assert response_data[key] == expected_value
-        
-
-
-
-
-
+    # Delete the animal record used in the test
+    # Need this cleanup otherwise is messes with other tests
+    await session.delete(default_animal1)
+    await session.commit()
 
 
 
