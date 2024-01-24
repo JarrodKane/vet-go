@@ -64,3 +64,48 @@ async def test_register_new_user(
     result = await session.execute(select(User).where(User.email == "qwe@example.com"))
     user = result.scalars().first()
     assert user is not None
+
+
+async def test_update_current_user(
+    client: AsyncClient, default_user_headers, session: AsyncSession
+):
+    response = await client.patch(
+        app.url_path_for("update_user"),
+        headers=default_user_headers,
+        json={
+            "first_name": "qwe",
+            "last_name": "qwe",
+            "mobile_number": "qwe",
+            "road": "qwe",
+            "city": "qwe",
+            "state": "qwe",
+            "zip": "qwe",
+            "country": "qwe",
+            "phone_number": "qwe",
+        },
+    )
+    assert response.status_code == codes.OK
+    result = await session.execute(select(User).where(User.id == default_user_id))
+    user = result.scalars().first()
+    assert user is not None
+    assert user.first_name == "qwe"
+    assert user.last_name == "qwe"
+    assert user.mobile_number == "qwe"
+    assert user.road == "qwe"
+    assert user.city == "qwe"
+    assert user.state == "qwe"
+    assert user.zip == "qwe"
+    assert user.country == "qwe"
+    assert user.phone_number == "qwe"
+
+
+
+
+
+
+
+
+
+
+
+    

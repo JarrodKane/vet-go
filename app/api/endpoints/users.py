@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api import deps
 from app.core.security import get_password_hash
 from app.models import User
-from app.schemas.requests import UserCreateRequest, UserUpdatePasswordRequest
+from app.schemas.requests import UserCreateRequest, UserUpdatePasswordRequest, UserUpdateRequest
 from app.schemas.responses import UserResponse
+from app.utils.services import update_record
+
 
 router = APIRouter()
 
@@ -36,9 +38,8 @@ async def reset_current_user_password(
     current_user: User = Depends(deps.get_current_user),
 ):
     """Update current user password"""
-    current_user.hashed_password = get_password_hash(user_update_password.password)
-    session.add(current_user)
-    await session.commit()
+    new_values = {"hashed_password": get_password_hash(user_update_password.password)}
+    await update_record(session, current_user, new_values)
     return current_user
 
 
@@ -58,3 +59,20 @@ async def register_new_user(
     session.add(user)
     await session.commit()
     return user
+
+@router.patch("/update", response_model=UserResponse)
+async def update_user(
+    user_update: UserUpdateRequest,
+    current_user: User = Depends(deps.get_current_user),
+    session: AsyncSession = Depends(deps.get_session),
+): 
+    """Update user"""
+    result = await session.execute(select(User).where(User.id == current_user.id))
+    user = result.scalars().first()
+    if user is None:
+        raise HTTPException(status_code=400, detail="User does not exist")
+    new_values = user_update.model_dump(exclude_unset=True)
+    await update_record(session, user, new_values)
+    return user
+
+

@@ -21,13 +21,13 @@ from decimal import Decimal
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 # from enum import Enum as PyEnum
-from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
+from sqlalchemy.orm import declarative_base
 
 # NEED THIS IN ORDER TO CREATE ENUMS WITHOUT ISSUE
 # https://github.com/sqlalchemy/alembic/issues/278#issuecomment-1671727631
-import alembic_postgresql_enum
-
+# import alembic_postgresql_enum
 
 
 
@@ -140,7 +140,7 @@ class AddressModel(BaseModel):
     state: Mapped[str] = mapped_column(String(254), nullable=True)
     zip: Mapped[str] = mapped_column(String(254), nullable=True)
     country: Mapped[str] = mapped_column(String(254), nullable=True)
-    phone_number = mapped_column(String(20), nullable=False)
+    phone_number = mapped_column(String(20), nullable=True)
 
 
 class UserModel(AddressModel):
@@ -154,15 +154,6 @@ class UserModel(AddressModel):
     hashed_password = mapped_column(String(128), nullable=False)
     active = mapped_column(Boolean, nullable=False, default=True)
 
-
-
-# #  Many to many association table
-# association_table = Table(
-#     "animal_user_association",
-#     Base.metadata,
-#     Column("animal_id", ForeignKey("animal.id")),
-#     Column("user_id", ForeignKey("user_model.id")),
-# )
 
 class AnimalUserAssociation(BaseModel):
     __tablename__ = "animal_user_association"
@@ -186,10 +177,6 @@ class User(UserModel):
     )
 
 
-
-
-# An animal might belong to multiple users
-# An user might have multiple animals
 
 class Animal(AddressModel):
     __tablename__ = "animal"

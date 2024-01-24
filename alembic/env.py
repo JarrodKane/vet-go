@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from alembic import context
 from app.core import config as app_config
 
+import alembic_postgresql_enum
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
