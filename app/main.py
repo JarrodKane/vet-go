@@ -7,6 +7,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from app.api.api import api_router
 from app.core import config
 
+
 app = FastAPI(
     title=config.settings.PROJECT_NAME,
     version=config.settings.VERSION,

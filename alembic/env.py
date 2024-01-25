@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from alembic import context
 from app.core import config as app_config
 
+# import alembic_postgresql_enum
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -28,8 +30,10 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+
 def get_test_database_uri():
     return app_config.settings.TEST_SQLALCHEMY_DATABASE_URI
+
 
 def get_database_uri():
     return app_config.settings.DEFAULT_SQLALCHEMY_DATABASE_URI
@@ -90,6 +94,7 @@ async def run_migrations_online(database_uri):
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
+
 
 if context.is_offline_mode():
     run_migrations_offline()

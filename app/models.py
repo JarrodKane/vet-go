@@ -16,24 +16,38 @@ alembic upgrade head
 import uuid
 
 import enum
-from sqlalchemy import String, ForeignKey, Boolean, Table, Column, Enum, Date, Float, DateTime, Text, Time, Integer,Interval, Numeric
+from sqlalchemy import (
+    String,
+    ForeignKey,
+    Boolean,
+    Table,
+    Column,
+    Enum,
+    Date,
+    Float,
+    DateTime,
+    Text,
+    Time,
+    Integer,
+    Interval,
+    Numeric,
+)
 from decimal import Decimal
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
 # from enum import Enum as PyEnum
-from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
+from sqlalchemy.orm import declarative_base
 
 # NEED THIS IN ORDER TO CREATE ENUMS WITHOUT ISSUE
 # https://github.com/sqlalchemy/alembic/issues/278#issuecomment-1671727631
 import alembic_postgresql_enum
 
 
-
-
-
-
 class ActivityTypes(enum.Enum):
+    all = "all"
     check_up = "check-up"
     operation = "operation"
     sale = "sale"
@@ -60,7 +74,6 @@ class ActivityTypes(enum.Enum):
     Seizure = "Seizure"
     Season = "Season"
     Medication = "Medication"
-
 
 
 class AnimalType(enum.Enum):
@@ -104,6 +117,7 @@ class SpecialisationType(enum.Enum):
     Zoological_Medicine = "Zoological Medicine"
     Other = "Other"
 
+
 class RoleType(enum.Enum):
     Veterinarian = "Veterinarian"
     Veterinary_Technician = "Veterinary Technician"
@@ -118,33 +132,37 @@ class RoleType(enum.Enum):
     Other = "Other"
 
 
-
 Base = declarative_base()
 
 
 class BaseModel(Base):
     __abstract__ = True
+
     id: Mapped[str] = mapped_column(
         UUID(as_uuid=False), primary_key=True, default=lambda _: str(uuid.uuid4())
     )
-    created_at: Mapped[DateTime] = Column(DateTime, default=func.now())
-    updated_at: Mapped[DateTime] = Column(DateTime, default=func.now(), onupdate=func.now())
-    is_deleted: Mapped[bool] = Column(Boolean, default=False)
-    version: Mapped[int] = Column(Integer, default=0)
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+    version: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class AddressModel(BaseModel):
     __abstract__ = True
+
     road: Mapped[str] = mapped_column(String(254), nullable=True)
     city: Mapped[str] = mapped_column(String(254), nullable=True)
     state: Mapped[str] = mapped_column(String(254), nullable=True)
     zip: Mapped[str] = mapped_column(String(254), nullable=True)
     country: Mapped[str] = mapped_column(String(254), nullable=True)
-    phone_number = mapped_column(String(20), nullable=False)
+    phone_number = mapped_column(String(20), nullable=True)
 
 
 class UserModel(AddressModel):
     __abstract__ = True
+
     first_name: Mapped[str] = mapped_column(String(254), nullable=True)
     last_name: Mapped[str] = mapped_column(String(254), nullable=True)
     email: Mapped[str] = mapped_column(
@@ -155,41 +173,27 @@ class UserModel(AddressModel):
     active = mapped_column(Boolean, nullable=False, default=True)
 
 
-
-# #  Many to many association table
-# association_table = Table(
-#     "animal_user_association",
-#     Base.metadata,
-#     Column("animal_id", ForeignKey("animal.id")),
-#     Column("user_id", ForeignKey("user_model.id")),
-# )
-
 class AnimalUserAssociation(BaseModel):
     __tablename__ = "animal_user_association"
 
-    animal_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('animal.id'), nullable=True)
-    user_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('user_model.id'), nullable=True)
-
-
+    animal_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("animal.id", ondelete="CASCADE"), nullable=True
+    )
+    user_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("user.id", ondelete="CASCADE"), nullable=True
+    )
 
 
 class User(UserModel):
-    __tablename__ = "user_model"
+    __tablename__ = "user"
 
-    id: Mapped[str] = mapped_column(
-        UUID(as_uuid=False), primary_key=True, default=lambda _: str(uuid.uuid4())
-    )
     animals: Mapped[list] = relationship(
         "Animal",
         secondary=AnimalUserAssociation.__tablename__,
         back_populates="owners",
     )
+    appointments: Mapped[list] = relationship("Appointment", back_populates="user")
 
-
-
-
-# An animal might belong to multiple users
-# An user might have multiple animals
 
 class Animal(AddressModel):
     __tablename__ = "animal"
@@ -197,7 +201,9 @@ class Animal(AddressModel):
     identifier: Mapped[str] = mapped_column(String(254), nullable=True)
     name: Mapped[str] = mapped_column(String(254), nullable=True)
     sex: Mapped[str] = mapped_column(String(50), nullable=True)
-    height: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=True)  # Adjust Numeric precision and scale
+    height: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2), nullable=True
+    )  # Adjust Numeric precision and scale
     animal_types = mapped_column(Enum(AnimalType), nullable=False)
     color: Mapped[str] = mapped_column(String(128), nullable=True)
     description: Mapped[str] = mapped_column(String(128), nullable=True)
@@ -210,24 +216,34 @@ class Animal(AddressModel):
         secondary=AnimalUserAssociation.__tablename__,
         back_populates="animals",
     )
-
-
+    weight_history: Mapped[list] = relationship(
+        "AnimalWeightHistory", back_populates="animal", cascade="all, delete-orphan"
+    )
 
 
 class AnimalWeightHistory(BaseModel):
     __tablename__ = "animal_weight_history"
 
-
     weight: Mapped[float] = mapped_column(Float, nullable=False)
     change_date: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
-    animal_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('animal.id'), nullable=False)
+    animal_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("animal.id"), nullable=False
+    )
+    animal: Mapped[Animal] = relationship(
+        "Animal",
+        back_populates="weight_history",
+    )
+
 
 class AnimalLog(BaseModel):
     __tablename__ = "animal_log"
 
-
-    animal_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('animal.id'), nullable=False)
-    appointment_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('appointment.id'), nullable=True)
+    animal_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("animal.id", ondelete="CASCADE"), nullable=False
+    )
+    appointment_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("appointment.id", ondelete="CASCADE"), nullable=True
+    )
     date: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     activity: Mapped[str] = mapped_column(Enum(ActivityTypes), nullable=False)
     comments: Mapped[str] = mapped_column(Text, nullable=True)
@@ -235,17 +251,18 @@ class AnimalLog(BaseModel):
     medication: Mapped[str] = mapped_column(Text, nullable=True)
     food_name: Mapped[str] = mapped_column(Text, nullable=True)
     medication_brand: Mapped[str] = mapped_column(Text, nullable=True)
-    
-
-
 
 
 class Appointment(BaseModel):
     __tablename__ = "appointment"
 
-
-    user_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('user_model.id'), nullable=False)
-    schedule_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('schedule.id'), nullable=False)
+    user_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+    )
+    schedule_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("schedule.id"), nullable=False
+    )
+    user: Mapped[User] = relationship("User", back_populates="appointments")
     appointment_time: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     activity_duration: Mapped[Interval] = mapped_column(Interval, nullable=False)
 
@@ -257,9 +274,14 @@ class Clinic(AddressModel):
     email = mapped_column(String(250), nullable=False)
     description = mapped_column(Text, nullable=True)
     website = mapped_column(String(250), nullable=True)
-    specialisation = mapped_column(Enum(SpecialisationType, create_type=False), nullable=True)
+    specialisation = mapped_column(
+        Enum(SpecialisationType, create_type=False), nullable=True
+    )
     animal_types = mapped_column(Enum(AnimalType, create_type=False), nullable=False)
-    organization_id = mapped_column(UUID(as_uuid=False), ForeignKey('organization.id'), nullable=False)
+    organization_id = mapped_column(
+        UUID(as_uuid=False), ForeignKey("organization.id"), nullable=False
+    )
+
 
 class Organization(AddressModel):
     __tablename__ = "organization"
@@ -277,24 +299,28 @@ class Schedule(BaseModel):
     date = mapped_column(Date, nullable=False)
     opening_time = mapped_column(Time, nullable=False)
     closing_time = mapped_column(Time, nullable=False)
-    staff_clinic_id = mapped_column(UUID(as_uuid=False), ForeignKey('staff_clinic.id'), nullable=False)
+    staff_clinic_id = mapped_column(
+        UUID(as_uuid=False), ForeignKey("staff_clinic.id"), nullable=False
+    )
 
 
 class Staff(UserModel):
     __tablename__ = "staff"
 
+    id = mapped_column(UUID(as_uuid=False), ForeignKey("user.id"), primary_key=True)
     description = mapped_column(Text, nullable=True)
-    specialisation = mapped_column(Enum(SpecialisationType, create_type=False), nullable=True)
+    specialisation = mapped_column(
+        Enum(SpecialisationType, create_type=False), nullable=True
+    )
+
 
 class StaffClinic(BaseModel):
     __tablename__ = "staff_clinic"
 
-    staff_id = mapped_column(UUID(as_uuid=False), ForeignKey('staff.id'), nullable=False)
-    clinic_id = mapped_column(UUID(as_uuid=False), ForeignKey('clinic.id'), nullable=False)
+    staff_id = mapped_column(
+        UUID(as_uuid=False), ForeignKey("staff.id"), nullable=False
+    )
+    clinic_id = mapped_column(
+        UUID(as_uuid=False), ForeignKey("clinic.id"), nullable=False
+    )
     role = mapped_column(Enum(RoleType, create_type=False), nullable=False)
-
-
-
-
-
-

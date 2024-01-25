@@ -10,8 +10,11 @@ import asyncio
 from sqlalchemy import select
 
 from app.core import config, security
+import uuid
+
 from app.core.session import async_session
-from app.models import User
+from app.models import User, Animal, AnimalType
+from datetime import date
 
 
 async def main() -> None:
@@ -35,6 +38,15 @@ async def main() -> None:
         else:
             print("Superuser already exists in database")
 
+        # result = await session.execute(select(Animal).where(Animal.id == uuid.UUID('877b4aa9-4feb-4cc6-aee9-d87a60064d01')))
+        # animal1 = result.scalars().first()
+        # if animal1 is None:
+        #     animal1 = Animal(id=uuid.UUID('877b4aa9-4feb-4cc6-aee9-d87a60064d01'), name="Animal1", animal_types=AnimalType.Dog.value, date_of_birth=date.today())
+        #     animal1.owners.append(user)
+        #     session.add(animal1)
+
+        # user.animals = [animal1, animal2]
+        # await session.commit()
         print("Initial data created")
 
 
