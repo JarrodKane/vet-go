@@ -98,28 +98,17 @@ async def test_update_current_user(
     assert user.country == "qwe"
     assert user.phone_number == "qwe"
 
+
 async def test_version(
     client: AsyncClient, default_user_headers, session: AsyncSession
 ):
     response = await client.patch(
         app.url_path_for("update_user"),
         headers=default_user_headers,
-        json={
-            "version": 1
-        },
+        json={"version": 1},
     )
     assert response.status_code == codes.OK
     result = await session.execute(select(User).where(User.id == default_user_id))
     user = result.scalars().first()
     assert user is not None
     assert user.version == 1
-
-
-
-
-
-
-
-
-
-

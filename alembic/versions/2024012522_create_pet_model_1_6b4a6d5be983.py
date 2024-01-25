@@ -1,8 +1,8 @@
-"""create_pet_model
+"""create_pet_model-1
 
-Revision ID: 1d189aa56085
+Revision ID: 6b4a6d5be983
 Revises: 
-Create Date: 2024-01-24 09:21:45.323388
+Create Date: 2024-01-25 10:22:15.724632
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "1d189aa56085"
+revision = "6b4a6d5be983"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -58,12 +58,12 @@ def upgrade():
         sa.Column("state", sa.String(length=254), nullable=True),
         sa.Column("zip", sa.String(length=254), nullable=True),
         sa.Column("country", sa.String(length=254), nullable=True),
-        sa.Column("phone_number", sa.String(length=20), nullable=False),
+        sa.Column("phone_number", sa.String(length=20), nullable=True),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -78,46 +78,16 @@ def upgrade():
         sa.Column("state", sa.String(length=254), nullable=True),
         sa.Column("zip", sa.String(length=254), nullable=True),
         sa.Column("country", sa.String(length=254), nullable=True),
-        sa.Column("phone_number", sa.String(length=20), nullable=False),
+        sa.Column("phone_number", sa.String(length=20), nullable=True),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
-        "staff",
-        sa.Column("description", sa.Text(), nullable=True),
-        sa.Column(
-            "specialisation",
-            postgresql.ENUM(
-                "Canine_Medicine",
-                "Feline_Medicine",
-                "Equine_Medicine",
-                "Avian_Medicine",
-                "Exotic_Animal_Medicine",
-                "Dental_Specialist",
-                "Orthopedic_Surgeon",
-                "Ophthalmologist",
-                "Dermatologist",
-                "Behavioral_Specialist",
-                "Radiology",
-                "Nutritionist",
-                "Emergency_and_Critical_Care",
-                "Internal_Medicine",
-                "Surgery",
-                "Anesthesiology",
-                "Pathology",
-                "Rehabilitation_Therapist",
-                "Public_Health",
-                "Zoological_Medicine",
-                "Other",
-                name="specialisationtype",
-                create_type=False,
-            ),
-            nullable=True,
-        ),
+        "user",
         sa.Column("first_name", sa.String(length=254), nullable=True),
         sa.Column("last_name", sa.String(length=254), nullable=True),
         sa.Column("email", sa.String(length=254), nullable=False),
@@ -129,54 +99,26 @@ def upgrade():
         sa.Column("state", sa.String(length=254), nullable=True),
         sa.Column("zip", sa.String(length=254), nullable=True),
         sa.Column("country", sa.String(length=254), nullable=True),
-        sa.Column("phone_number", sa.String(length=20), nullable=False),
+        sa.Column("phone_number", sa.String(length=20), nullable=True),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_staff_email"), "staff", ["email"], unique=True)
-    op.create_table(
-        "user_model",
-        sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("first_name", sa.String(length=254), nullable=True),
-        sa.Column("last_name", sa.String(length=254), nullable=True),
-        sa.Column("email", sa.String(length=254), nullable=False),
-        sa.Column("mobile_number", sa.String(length=20), nullable=True),
-        sa.Column("hashed_password", sa.String(length=128), nullable=False),
-        sa.Column("active", sa.Boolean(), nullable=False),
-        sa.Column("road", sa.String(length=254), nullable=True),
-        sa.Column("city", sa.String(length=254), nullable=True),
-        sa.Column("state", sa.String(length=254), nullable=True),
-        sa.Column("zip", sa.String(length=254), nullable=True),
-        sa.Column("country", sa.String(length=254), nullable=True),
-        sa.Column("phone_number", sa.String(length=20), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
-        sa.PrimaryKeyConstraint("id"),
-    )
-    op.create_index(op.f("ix_user_model_email"), "user_model", ["email"], unique=True)
+    op.create_index(op.f("ix_user_email"), "user", ["email"], unique=True)
     op.create_table(
         "animal_user_association",
         sa.Column("animal_id", sa.UUID(as_uuid=False), nullable=True),
         sa.Column("user_id", sa.UUID(as_uuid=False), nullable=True),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["animal_id"],
-            ["animal.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["user_model.id"],
-        ),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(["animal_id"], ["animal.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -185,10 +127,10 @@ def upgrade():
         sa.Column("change_date", sa.DateTime(), nullable=False),
         sa.Column("animal_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["animal_id"],
             ["animal.id"],
@@ -259,18 +201,74 @@ def upgrade():
         sa.Column("state", sa.String(length=254), nullable=True),
         sa.Column("zip", sa.String(length=254), nullable=True),
         sa.Column("country", sa.String(length=254), nullable=True),
-        sa.Column("phone_number", sa.String(length=20), nullable=False),
+        sa.Column("phone_number", sa.String(length=20), nullable=True),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["organization_id"],
             ["organization.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.create_table(
+        "staff",
+        sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
+        sa.Column("description", sa.Text(), nullable=True),
+        sa.Column(
+            "specialisation",
+            postgresql.ENUM(
+                "Canine_Medicine",
+                "Feline_Medicine",
+                "Equine_Medicine",
+                "Avian_Medicine",
+                "Exotic_Animal_Medicine",
+                "Dental_Specialist",
+                "Orthopedic_Surgeon",
+                "Ophthalmologist",
+                "Dermatologist",
+                "Behavioral_Specialist",
+                "Radiology",
+                "Nutritionist",
+                "Emergency_and_Critical_Care",
+                "Internal_Medicine",
+                "Surgery",
+                "Anesthesiology",
+                "Pathology",
+                "Rehabilitation_Therapist",
+                "Public_Health",
+                "Zoological_Medicine",
+                "Other",
+                name="specialisationtype",
+                create_type=False,
+            ),
+            nullable=True,
+        ),
+        sa.Column("first_name", sa.String(length=254), nullable=True),
+        sa.Column("last_name", sa.String(length=254), nullable=True),
+        sa.Column("email", sa.String(length=254), nullable=False),
+        sa.Column("mobile_number", sa.String(length=20), nullable=True),
+        sa.Column("hashed_password", sa.String(length=128), nullable=False),
+        sa.Column("active", sa.Boolean(), nullable=False),
+        sa.Column("road", sa.String(length=254), nullable=True),
+        sa.Column("city", sa.String(length=254), nullable=True),
+        sa.Column("state", sa.String(length=254), nullable=True),
+        sa.Column("zip", sa.String(length=254), nullable=True),
+        sa.Column("country", sa.String(length=254), nullable=True),
+        sa.Column("phone_number", sa.String(length=20), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["id"],
+            ["user.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(op.f("ix_staff_email"), "staff", ["email"], unique=True)
     op.create_table(
         "staff_clinic",
         sa.Column("staff_id", sa.UUID(as_uuid=False), nullable=False),
@@ -295,10 +293,10 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["clinic_id"],
             ["clinic.id"],
@@ -316,10 +314,10 @@ def upgrade():
         sa.Column("closing_time", sa.Time(), nullable=False),
         sa.Column("staff_clinic_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["staff_clinic_id"],
             ["staff_clinic.id"],
@@ -333,17 +331,17 @@ def upgrade():
         sa.Column("appointment_time", sa.DateTime(), nullable=False),
         sa.Column("activity_duration", sa.Interval(), nullable=False),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["schedule_id"],
             ["schedule.id"],
         ),
         sa.ForeignKeyConstraint(
             ["user_id"],
-            ["user_model.id"],
+            ["user.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -392,10 +390,10 @@ def upgrade():
         sa.Column("food_name", sa.Text(), nullable=True),
         sa.Column("medication_brand", sa.Text(), nullable=True),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("version", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["animal_id"],
             ["animal.id"],
@@ -415,13 +413,13 @@ def downgrade():
     op.drop_table("appointment")
     op.drop_table("schedule")
     op.drop_table("staff_clinic")
+    op.drop_index(op.f("ix_staff_email"), table_name="staff")
+    op.drop_table("staff")
     op.drop_table("clinic")
     op.drop_table("animal_weight_history")
     op.drop_table("animal_user_association")
-    op.drop_index(op.f("ix_user_model_email"), table_name="user_model")
-    op.drop_table("user_model")
-    op.drop_index(op.f("ix_staff_email"), table_name="staff")
-    op.drop_table("staff")
+    op.drop_index(op.f("ix_user_email"), table_name="user")
+    op.drop_table("user")
     op.drop_table("organization")
     op.drop_table("animal")
     # ### end Alembic commands ###

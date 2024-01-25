@@ -24,17 +24,18 @@ class UserResponse(BaseResponse):
     id: str
     email: EmailStr
 
+
 class AnimalBaseResponse(BaseResponse):
-    id: str 
+    id: str
     name: str
-    animal_types : AnimalType
-    date_of_birth : date
-    active : bool
+    animal_types: AnimalType
+    date_of_birth: date
+    active: bool
     owners: List[UserResponse] = []
 
 
 class AnimalExtendedResponse(BaseResponse):
-    id: str 
+    id: str
     name: str
     animal_types: AnimalType
     active: bool
@@ -47,7 +48,11 @@ class AnimalExtendedResponse(BaseResponse):
     date_of_death: Optional[date] = None
     owners: Optional[List[UserResponse]] = None
 
+
 class AnimalWeightHistoryResponse(BaseModel):
+    id: str
     weight: float
     change_date: datetime
     # animal_id: str
+
+

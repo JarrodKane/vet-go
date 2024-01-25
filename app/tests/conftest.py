@@ -15,8 +15,6 @@ from app.models import AnimalType
 from datetime import datetime
 
 
-
-
 default_user_id = "b75365d9-7bf9-4f54-add5-aeab333a087b"
 default_user_email = "geralt@wiedzmin.pl"
 default_user_password = "geralt"
@@ -31,12 +29,14 @@ default_animal1_name = "Animal1"
 default_animal1_types = AnimalType.Dog
 default_animal1_date_of_birth = datetime.strptime("2022-01-01", "%Y-%m-%d").date()
 default_animal1_active = True
+default_animal1_identifier = "1234"
 
 default_animal2_id = "c6697bb9-8afc-42e3-b32d-c7b50c2c3457"
 default_animal2_name = "Animal2"
 default_animal2_types = AnimalType.Cat
 default_animal2_date_of_birth = datetime.strptime("2022-01-02", "%Y-%m-%d").date()
 default_animal2_active = False
+default_animal2_identifier = "1235"
 
 
 @pytest.fixture(scope="session")
@@ -101,9 +101,8 @@ def default_user_headers(default_user: User):
     return {"Authorization": f"Bearer {default_user_access_token}"}
 
 
-
-
-@pytest.fixture(autouse=True)
+# @pytest.fixture(autouse=True)
+@pytest.fixture
 async def default_animal1(test_db_setup_sessionmaker, default_user: User) -> Animal:
     async with async_session() as session:
         result = await session.execute(
@@ -112,20 +111,23 @@ async def default_animal1(test_db_setup_sessionmaker, default_user: User) -> Ani
         animal = result.scalars().first()
         if animal is None:
             new_animal = Animal(
-                id=default_animal1_id,
                 name=default_animal1_name,
                 animal_types=default_animal1_types,
                 date_of_birth=default_animal1_date_of_birth,
                 active=default_animal1_active,
+                identifier=default_animal1_identifier,
             )
             new_animal.owners.append(default_user)
+            new_animal.id = default_animal1_id
             session.add(new_animal)
             await session.commit()
             await session.refresh(new_animal)
             return new_animal
         return animal
 
-@pytest.fixture(autouse=True)
+
+# @pytest.fixture(autouse=True)
+@pytest.fixture
 async def default_animal2(test_db_setup_sessionmaker, default_user: User) -> Animal:
     async with async_session() as session:
         result = await session.execute(
@@ -134,16 +136,16 @@ async def default_animal2(test_db_setup_sessionmaker, default_user: User) -> Ani
         animal = result.scalars().first()
         if animal is None:
             new_animal = Animal(
-                id=default_animal2_id,
                 name=default_animal2_name,
                 animal_types=default_animal2_types,
                 date_of_birth=default_animal2_date_of_birth,
                 active=default_animal2_active,
+                identifier=default_animal2_identifier,
             )
+            new_animal.id = default_animal2_id
             new_animal.owners.append(default_user)
             session.add(new_animal)
             await session.commit()
             await session.refresh(new_animal)
             return new_animal
         return animal
-

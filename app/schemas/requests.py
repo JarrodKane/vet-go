@@ -1,10 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date, datetime
-from app.models import AnimalType   
-
-
-
+from app.models import AnimalType
 
 
 class BaseRequest(BaseModel):
@@ -24,6 +21,7 @@ class UserCreateRequest(BaseRequest):
     email: EmailStr
     password: str
 
+
 class UserUpdateRequest(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -40,11 +38,13 @@ class UserUpdateRequest(BaseModel):
 # Animals
 # ------------------
 
+
 class AnimalCreateRequest(BaseModel):
     name: str
     animal_types: AnimalType
     date_of_birth: date
     active: bool = True
+
 
 class AnimalUpdateRequest(BaseModel):
     identifier: Optional[str]
@@ -58,10 +58,7 @@ class AnimalUpdateRequest(BaseModel):
     date_of_death: Optional[date]
     active: Optional[bool]
 
+
 class AnimalWeightHistoryCreateRequest(BaseModel):
     weight: float
     change_date: datetime
-
-
-
-
