@@ -47,6 +47,7 @@ import alembic_postgresql_enum
 
 
 class ActivityTypes(enum.Enum):
+    all = "all"
     check_up = "check-up"
     operation = "operation"
     sale = "sale"
@@ -238,10 +239,10 @@ class AnimalLog(BaseModel):
     __tablename__ = "animal_log"
 
     animal_id: Mapped[str] = mapped_column(
-        UUID(as_uuid=False), ForeignKey("animal.id"), nullable=False
+        UUID(as_uuid=False), ForeignKey("animal.id", ondelete="CASCADE"), nullable=False
     )
     appointment_id: Mapped[str] = mapped_column(
-        UUID(as_uuid=False), ForeignKey("appointment.id"), nullable=True
+        UUID(as_uuid=False), ForeignKey("appointment.id", ondelete="CASCADE"), nullable=True
     )
     date: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     activity: Mapped[str] = mapped_column(Enum(ActivityTypes), nullable=False)

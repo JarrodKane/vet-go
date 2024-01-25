@@ -1,7 +1,8 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date, datetime
-from app.models import AnimalType
+from app.models import AnimalType, ActivityTypes
+# from sqlalchemy import  DateTime
 
 
 class BaseRequest(BaseModel):
@@ -62,3 +63,24 @@ class AnimalUpdateRequest(BaseModel):
 class AnimalWeightHistoryCreateRequest(BaseModel):
     weight: float
     change_date: datetime
+
+class AnimalLogCreateRequest(BaseModel):
+    comments: str
+    activity: ActivityTypes
+    date: datetime
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

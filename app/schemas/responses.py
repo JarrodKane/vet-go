@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel, ConfigDict, EmailStr
-from app.models import AnimalType
+from app.models import AnimalType, ActivityTypes
 from datetime import date, datetime
 
 from typing import Optional
@@ -54,5 +54,12 @@ class AnimalWeightHistoryResponse(BaseModel):
     weight: float
     change_date: datetime
     # animal_id: str
+
+class AnimalLogResponse(BaseModel):
+    id: str
+    animal_id: str
+    comments: str
+    activity: ActivityTypes 
+    date: datetime
 
 
